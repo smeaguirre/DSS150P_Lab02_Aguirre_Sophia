@@ -1,0 +1,64 @@
+sources:
+  - source_name: customers_csv
+    owner_contact: "crm_engineering_team@example.com"
+    source_type: "Flat File (CSV)"
+    location_endpoint: "local_filesystem/data/customers.csv"
+    description: "Customer demographic and profile data extracted from CRM."
+    record_count: "[TBD based on task 1.2 profile output]"
+    schema_summary: "customer_id (int), name (string), email (string), age (int), country_code (string)"
+    candidate_key: "customer_id"
+    update_pattern: "Daily batch drop"
+    known_quality_issues: "Potential duplicate rows; missing emails/ages; non-standardized country codes."
+    acquisition_method: "File ingestion via pandas (read_csv)"
+    validation_checks: 
+      - "customer_id must be strictly unique"
+      - "customer_id must not be null"
+      - "email must match valid regex pattern"
+
+  - source_name: orders_json
+    owner_contact: "ecommerce_platform_team@example.com"
+    source_type: "Semi-structured File (JSON)"
+    location_endpoint: "local_filesystem/data/orders.json"
+    description: "Transactional order data including nested shipping details."
+    record_count: "[TBD based on task 1.3 profile output]"
+    schema_summary: "order_id (string/int), customer_id (int), order_date (timestamp), total_amount (float), shipping (nested dictionary)"
+    candidate_key: "order_id"
+    update_pattern: "Hourly micro-batch"
+    known_quality_issues: "Nested 'shipping' object has missing keys in some records; dates stored as ISO strings."
+    acquisition_method: "File ingestion via python json module"
+    validation_checks:
+      - "Root structure must be a list of records"
+      - "order_id must be unique"
+      - "order_date must be a parsable timestamp"
+
+  - source_name: products_parquet
+    owner_contact: "inventory_management_team@example.com"
+    source_type: "Columnar File (Parquet)"
+    location_endpoint: "local_filesystem/data/products.parquet"
+    description: "Product catalog and inventory metadata snapshot."
+    record_count: "[TBD based on task 1.4 profile output]"
+    schema_summary: "product_id (int), product_name (string), category (string), price (float), is_active (boolean)"
+    candidate_key: "product_id"
+    update_pattern: "Daily snapshot"
+    known_quality_issues: "Orphaned categories; potential negative price values."
+    acquisition_method: "File ingestion via pandas/pyarrow (read_parquet)"
+    validation_checks:
+      - "Data types must be preserved from Parquet metadata"
+      - "product_id must be unique"
+      - "price must be > 0"
+
+  - source_name: support_tickets_pg
+    owner_contact: "support_ops_team@example.com"
+    source_type: "Relational Database (PostgreSQL)"
+    location_endpoint: "jdbc:postgresql://localhost:5432/dss150p"
+    description: "Operational system database for tracking customer support tickets."
+    record_count: "[TBD based on SELECT COUNT(*)]"
+    schema_summary: "ticket_id (int, PK), customer_id (varchar), category (varchar), priority (varchar), assigned_agent (varchar), opened_at (timestamp), resolved_at (timestamp), status (varchar)"
+    candidate_key: "ticket_id"
+    update_pattern: "Continuous (OLTP)"
+    known_quality_issues: "Expected nulls in assigned_agent and resolved_at for open tickets; unstructured data in status strings if not constrained."
+    acquisition_method: "SQL extraction via psycopg2/SQLAlchemy connection"
+    validation_checks:
+      - "ticket_id must be unique and not null"
+      - "customer_id must not be null"
+      - "resolved_at must be >= opened_at if not null"
