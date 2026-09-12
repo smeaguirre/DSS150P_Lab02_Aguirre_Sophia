@@ -1,6 +1,5 @@
 .venv
 raw/
 state/
-outputs/
 __pycache__/
 *.pyc
