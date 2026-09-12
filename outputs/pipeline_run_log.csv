@@ -1,7 +1,0 @@
-run_id,started_at,finished_at,status,source,records_read,records_written,duplicates_removed,watermark_before,watermark_after,error_message
-run_20260912T081722298980_4526d0,2026-09-12T08:17:22.299401+00:00,2026-09-12T08:17:22.315713+00:00,success,files,3,3,0,,,
-run_20260912T081722322160_143b81,2026-09-12T08:17:22.323275+00:00,2026-09-12T08:17:22.434125+00:00,success,api,122,120,2,,2026-08-21T10:00:00,
-run_20260912T081813942738_8d5951,2026-09-12T08:18:13.943185+00:00,2026-09-12T08:18:13.946912+00:00,success,files,3,0,3,,,
-run_20260912T081813948019_11b71a,2026-09-12T08:18:13.948119+00:00,2026-09-12T08:18:14.016004+00:00,success,api,0,120,0,2026-08-21T10:00:00,2026-08-21T10:00:00,
-run_20260912T081845912044_9c838b,2026-09-12T08:18:45.912447+00:00,2026-09-12T08:18:45.916065+00:00,success,files,3,0,3,,,
-run_20260912T081845917200_d7a9b0,2026-09-12T08:18:45.917316+00:00,2026-09-12T08:18:45.956408+00:00,failed,api,,,,2026-08-21T10:00:00,2026-08-21T10:00:00,"HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /api/events?page=1&per_page=20&updated_after=2026-08-21T10%3A00%3A00 (Caused by NewConnectionError(""HTTPConnection(host='127.0.0.1', port=8000): Failed to establish a new connection: [Errno 61] Connection refused""))"

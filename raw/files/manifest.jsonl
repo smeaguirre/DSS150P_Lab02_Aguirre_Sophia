@@ -1,3 +1,0 @@
-{"source_file": "customers.csv", "raw_file": "customers__4229a20f.csv", "ingested_at": "2026-09-12T08:17:22.302214+00:00", "bytes": 18183, "sha256": "4229a20fde8733740f6d9a4c4bc49029dec0a36c96fce4efc2b50e14e0c2c80b"}
-{"source_file": "orders.json", "raw_file": "orders__7d303788.json", "ingested_at": "2026-09-12T08:17:22.305087+00:00", "bytes": 77938, "sha256": "7d303788cd3581a54d738cecd42679cc7ecc458caf66d9897aaa73a792bbce69"}
-{"source_file": "products.parquet", "raw_file": "products__cf3b6afd.parquet", "ingested_at": "2026-09-12T08:17:22.315218+00:00", "bytes": 14652, "sha256": "cf3b6afd1eea6c5c53a1f60e8e0e9f17dddef19ea5c8e57df10350ad9de93fc7"}
