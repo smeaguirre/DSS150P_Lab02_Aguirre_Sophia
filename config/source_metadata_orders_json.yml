@@ -1,0 +1,39 @@
+source_name: "orders_json"
+source_type: "Semi-structured File (JSON)"
+location_or_endpoint: "local_filesystem/data/orders.json"
+owner: "TODO — assign actual data steward"
+description: "Transactional order data including nested shipping details."
+record_count: 250
+schema:
+  - field: order_id
+    type: string
+  - field: customer_id
+    type: string
+  - field: order_timestamp
+    type: timestamp
+  - field: status
+    type: string (categorical)
+  - field: item_count
+    type: int
+  - field: subtotal
+    type: float
+  - field: shipping_fee
+    type: float
+  - field: total_amount
+    type: float
+  - field: shipping
+    type: nested object (method, region)
+primary_or_candidate_key: "order_id"
+update_pattern: "Cadence to be confirmed — no update-time field observed"
+known_quality_issues:
+  - "None found — order_id verified unique (250/250)"
+  - "Zero missing fields at top level or within the nested shipping object"
+  - "No negative item_count, subtotal, shipping_fee, or total_amount"
+  - "subtotal + shipping_fee reconciles exactly to total_amount on every record"
+acquisition_method: "File ingestion via python json module"
+validation_checks:
+  - "Root structure must be a list of records"
+  - "order_id must be unique and not null"
+  - "order_timestamp must be a parsable timestamp"
+  - "subtotal + shipping_fee must equal total_amount"
+  - "item_count, subtotal, shipping_fee, total_amount must be non-negative"

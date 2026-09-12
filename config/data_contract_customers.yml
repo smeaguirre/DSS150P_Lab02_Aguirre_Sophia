@@ -1,18 +1,89 @@
 dataset: customers
-owner: "TODO"
+owner: "TODO — assign actual data steward"
+producer: "TODO — confirm actual system of record (e.g. CRM export process)"
+consumer:
+  - "Data engineering / ingestion pipeline (this laboratory)"
+  - "Downstream analytics and customer segmentation consumers"
 source_type: csv
 primary_key: customer_id
+key_status: >
+  NOT reliably unique in the current extract — 247 of 250 customer_id
+  values are unique (98.8%). See known_issues below.
 delivery:
-  cadence: "TODO"
+  cadence: "Ad hoc / batch file drop — no refresh schedule observed in this extract"
+
 fields:
   - name: customer_id
     type: string
     nullable: false
-    unique: true
+    unique: false  # candidate key, but violated in this extract — see known_issues
+    definition: "Identifier intended to uniquely represent one customer"
+  - name: first_name
+    type: string
+    nullable: false
+    unique: false
+    definition: "Customer's given name"
+  - name: last_name
+    type: string
+    nullable: false
+    unique: false
+    definition: "Customer's family name"
   - name: email
     type: string
     nullable: true
+    unique: false
+    definition: "Customer's contact email address (3/250 missing)"
+  - name: city
+    type: string
+    nullable: true
+    unique: false
+    definition: "City associated with the customer's registered address (2/250 missing)"
+  - name: signup_date
+    type: date
+    nullable: false
+    unique: false
+    definition: "Date the customer registered; arrives as text (YYYY-MM-DD)"
+  - name: customer_segment
+    type: string (categorical)
+    nullable: false
+    unique: false
+    definition: "Business segment: SME, Retail, Professional, or Student"
+
 quality_rules:
-  - "TODO: define at least 5 rules"
+  - "customer_id must not be null (0 violations observed in 250 records)"
+  - "customer_id should be unique (candidate key) — VIOLATED: 247/250 unique. C0036 and C0145 are exact-duplicate rows; C0090 is a true collision where two customers share the ID with conflicting first_name/last_name/city/customer_segment values"
+  - "email, when present, must match standard local@domain.tld format (0 violations among 247 non-null values)"
+  - "signup_date must parse as a valid calendar date in YYYY-MM-DD format (0 violations; range 2025-01-04 to 2026-05-16)"
+  - "customer_segment must be one of: SME, Retail, Professional, Student (0 violations; counts SME=75, Retail=71, Professional=55, Student=49)"
+  - "no exact duplicate rows should exist — VIOLATED: 2 found (C0036, C0145)"
+
 change_policy:
-  schema_change_notice: "TODO"
+  schema_change_notice: >
+    Producer must notify the consumer before any breaking schema change
+    (column rename, type change, or column removal). Additive nullable
+    columns may be delivered without prior notice but must be reflected
+    in the next contract revision. TODO — confirm required notice period
+    with source owner.
+
+contact:
+  primary_contact: "TODO — name/email of data steward"
+  escalation_path: "TODO — team channel or ticket queue for data quality issues"
+
+ingestion_approach:
+  method: full
+  justification: >
+    No reliable last-modified or event-time column exists in this source
+    to support safe incremental extraction — signup_date reflects a
+    business event, not a record-update time. Given the observed
+    customer_id uniqueness violation, an incremental merge could
+    incorrectly overwrite one side of a genuine collision (e.g. C0090)
+    with no authoritative tiebreaker available. Full file ingestion with
+    content-hash-based duplicate-file prevention avoids this risk until
+    the source can guarantee a reliable update timestamp and an enforced
+    primary key.
+
+known_issues:
+  - "customer_id uniqueness violated: 2 exact duplicate rows (C0036, C0145) plus 1 true collision (C0090) with conflicting attribute values"
+  - "The C0090 collision cannot be safely auto-resolved downstream — no timestamp or version column exists to determine which record is authoritative. Must be resolved at the source system."
+  - "3 records (1.2%) missing email; 2 records (0.8%) missing city — both nullable per this contract, but consumers requiring complete contact info must filter these explicitly"
+  - "This file is missing at least 2 customers that other sources reference: C0222 (referenced by both support_tickets and the API events) and C0223 (referenced by support_tickets). Any downstream join from orders, tickets, or events back to this file will silently drop these records unless resolved upstream."

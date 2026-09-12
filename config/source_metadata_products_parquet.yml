@@ -1,0 +1,34 @@
+source_name: "products_parquet"
+source_type: "Columnar File (Parquet)"
+location_or_endpoint: "local_filesystem/data/products.parquet"
+owner: "TODO — assign actual data steward"
+description: "Product catalog and inventory metadata snapshot."
+record_count: 200
+schema:
+  - field: product_id
+    type: string
+  - field: product_name
+    type: string
+  - field: category
+    type: string (categorical)
+  - field: brand
+    type: string
+  - field: unit_price
+    type: float64
+  - field: stock_quantity
+    type: int32
+  - field: weight_kg
+    type: float64
+primary_or_candidate_key: "product_id"
+update_pattern: "Daily snapshot (assumed — to be confirmed with source owner)"
+known_quality_issues:
+  - "None found — product_id verified unique (200/200)"
+  - "Zero missing values in any column"
+  - "No negative unit_price or stock_quantity"
+  - "category has 6 clean values with no typos"
+acquisition_method: "File ingestion via pandas/pyarrow (read_parquet)"
+validation_checks:
+  - "Data types must be preserved from Parquet metadata"
+  - "product_id must be unique and not null"
+  - "unit_price must be >= 0"
+  - "stock_quantity must be >= 0"

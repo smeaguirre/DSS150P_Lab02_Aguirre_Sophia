@@ -1,0 +1,36 @@
+source_name: "support_tickets_pg"
+source_type: "Relational Database (PostgreSQL)"
+location_or_endpoint: "postgresql://localhost:5432/dss150p"
+owner: "TODO — assign actual data steward"
+description: "Operational system table tracking customer support tickets."
+record_count: 250
+schema:
+  - field: ticket_id
+    type: int (PK)
+  - field: customer_id
+    type: varchar(10)
+  - field: category
+    type: varchar (categorical)
+  - field: priority
+    type: varchar (categorical)
+  - field: assigned_agent
+    type: varchar (nullable)
+  - field: opened_at
+    type: timestamp
+  - field: resolved_at
+    type: timestamp (nullable)
+  - field: status
+    type: varchar (categorical)
+primary_or_candidate_key: "ticket_id"
+update_pattern: "Continuous (OLTP)"
+known_quality_issues:
+  - "None on ticket_id — verified unique (250/250)"
+  - "assigned_agent missing on 4 tickets"
+  - "resolved_at missing on 125 tickets — matches expected business logic exactly (every Open/In Progress ticket has no resolved_at, every Closed/Resolved ticket has one), not a defect"
+  - "2 customer_id values (C0222, C0223) do not exist in customers.csv; C0222 is also orphaned in api_events"
+acquisition_method: "SQL extraction via psycopg2/SQLAlchemy connection; inspection only in this lab"
+validation_checks:
+  - "ticket_id must be unique and not null"
+  - "customer_id must not be null"
+  - "resolved_at must be >= opened_at when not null"
+  - "resolved_at must be null if and only if status is Open or In Progress"

@@ -1,0 +1,37 @@
+source_name: "customers_csv"
+source_type: "Flat File (CSV)"
+location_or_endpoint: "local_filesystem/data/customers.csv"
+owner: "TODO — assign actual data steward"
+description: "Customer demographic and profile data."
+record_count: 250
+schema:
+  - field: customer_id
+    type: string
+  - field: first_name
+    type: string
+  - field: last_name
+    type: string
+  - field: email
+    type: string
+  - field: city
+    type: string
+  - field: signup_date
+    type: date
+  - field: customer_segment
+    type: string (categorical)
+primary_or_candidate_key: "customer_id"
+update_pattern: "Batch drop (cadence to be confirmed with source owner)"
+known_quality_issues:
+  - "customer_id uniqueness violated: 247/250 unique"
+  - "2 exact duplicate rows (C0036, C0145)"
+  - "1 true key collision with conflicting attributes (C0090) — no timestamp to break the tie"
+  - "3 records missing email (1.2%)"
+  - "2 records missing city (0.8%)"
+  - "At least 2 customer_ids referenced by other sources (C0222, C0223) are missing from this file entirely"
+acquisition_method: "File ingestion via pandas (read_csv)"
+validation_checks:
+  - "customer_id must not be null"
+  - "customer_id should be unique (currently violated — flag, do not block)"
+  - "email, when present, must match valid email regex"
+  - "signup_date must parse as YYYY-MM-DD"
+  - "customer_segment must be one of: SME, Retail, Professional, Student"

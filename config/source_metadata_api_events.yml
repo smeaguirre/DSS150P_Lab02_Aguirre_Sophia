@@ -1,0 +1,32 @@
+source_name: "api_events"
+source_type: "Paginated REST API"
+location_or_endpoint: "http://127.0.0.1:8000/api/events"
+owner: "TODO — assign actual data steward"
+description: "Behavioral/transactional event stream, paginated with an updated_after watermark parameter."
+record_count: "122 raw records per full pull; 120 unique logical events after dedup"
+schema:
+  - field: event_id
+    type: string
+  - field: customer_id
+    type: string
+  - field: event_type
+    type: string (categorical)
+  - field: amount
+    type: float
+  - field: updated_at
+    type: timestamp
+  - field: metadata
+    type: nested object (channel, campaign)
+primary_or_candidate_key: "event_id"
+update_pattern: "Near-real-time; incremental pull via updated_after watermark"
+known_quality_issues:
+  - "2 event_ids (E0020, E0055) deliberately repeat with a newer updated_at, by design"
+  - "Resolved by keeping the greatest updated_at per event_id"
+  - "Zero missing fields otherwise"
+  - "1 referenced customer_id (C0222) does not exist in customers.csv — also orphaned in support_tickets_pg, suggesting the gap is in customers.csv rather than a bad reference here"
+acquisition_method: "Paginated GET via requests, following has_more/next_page until exhausted"
+validation_checks:
+  - "event_id + updated_at combination must be used for dedup (event_id alone is insufficient)"
+  - "amount must be >= 0"
+  - "updated_at must be a parsable timestamp"
+  - "watermark must only advance after a successful raw write"
