@@ -1,2 +1,6 @@
 .venv
-data/
+raw/
+state/
+outputs/
+__pycache__/
+*.pyc
